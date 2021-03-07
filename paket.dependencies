@@ -7,7 +7,7 @@ nuget Argu
 nuget BenchmarkDotNet
 nuget BenchmarkDotNet.Diagnostics.Windows
 nuget FParsec
-nuget FSharp.Compiler.Service ~> 38.0
+nuget FSharp.Compiler.Service ~> 39.0
 nuget Dotnet.ProjInfo.Workspace ~> 0.41.0
 nuget Dotnet.ProjInfo.Workspace.FCS ~> 0.41.0
 nuget FSharp.Core
