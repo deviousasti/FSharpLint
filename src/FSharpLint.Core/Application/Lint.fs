@@ -15,6 +15,7 @@ open FSharpLint.Framework
 open FSharpLint.Framework.Configuration
 open FSharpLint.Framework.Rules
 open FSharpLint.Rules
+open FSharp.Compiler.Text
 
 /// Provides an API to manage/load FSharpLint configuration files.
 /// <see cref="FSharpLint.Framework.Configuration" /> for more information on
@@ -22,7 +23,7 @@ open FSharpLint.Rules
 module ConfigurationManagement =
 
     /// Load a FSharpLint configuration file given its contents.
-    let loadConfigurationFile (configurationFileText:string) =
+    let loadConfigurationFile (configurationFileText:string) =        
         parseConfig configurationFileText
 
 /// Provides an API for running FSharpLint from within another application.
@@ -59,10 +60,10 @@ module Lint =
             with get() =
                 let getParseFailureReason = function
                     | ParseFile.FailedToParseFile failures ->
-                        let getFailureReason (x:FSharp.Compiler.SourceCodeServices.FSharpErrorInfo) =
+                        let getFailureReason (x: FSharp.Compiler.SourceCodeServices.FSharpDiagnostic) =
                             sprintf "failed to parse file %s, message: %s" x.FileName x.Message
 
-                        String.Join(", ", failures |> Array.map getFailureReason)
+                        String.Join(", ", failures |> Seq.map getFailureReason)
                     | ParseFile.AbortedTypeCheck -> "Aborted type check."
 
                 match this with
@@ -115,7 +116,7 @@ module Lint =
 
     type Context =
         { IndentationRuleContext:Map<int,bool*int>
-          NoTabCharactersRuleContext:(string * Range.range) list }
+          NoTabCharactersRuleContext:(string * range) list }
 
     let runAstNodeRules (rules:RuleMetadata<AstNodeRuleConfig> []) (globalConfig:Rules.GlobalRuleConfig) typeCheckResults (filePath:string) (fileContent:string) (lines:string []) syntaxArray =
         let mutable indentationRuleState = Map.empty
@@ -240,19 +241,17 @@ module Lint =
                     | None -> Async.RunSynchronously(work, timeoutMs)
 
                 try
-                    let typeChecksSuccessful (typeChecks:Async<bool> list) =
-                        typeChecks
-                        |> List.reduce (Async.combine (&&))
+                    let typeChecksSuccessful (typeChecks: Lazy<bool> list) =
+                        typeChecks |> List.forall(fun c -> c.Force() = true)
 
                     let typeCheckSuggestion (suggestion:Suggestion.LintWarning) =
-                        typeChecksSuccessful suggestion.Details.TypeChecks
-                        |> Async.map (fun checkSuccessful -> if checkSuccessful then Some suggestion else None)
+                        if typeChecksSuccessful suggestion.Details.TypeChecks 
+                        then Some suggestion 
+                        else None
 
                     suggestionsRequiringTypeChecks
                     |> Seq.map typeCheckSuggestion
-                    |> Async.Parallel
-                    |> runSynchronously
-                    |> Array.iter (function
+                    |> Seq.iter (function
                         | Some suggestion -> suggest suggestion
                         | None -> ())
                 with

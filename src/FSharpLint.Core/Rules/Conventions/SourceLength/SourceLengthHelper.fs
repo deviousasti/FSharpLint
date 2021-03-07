@@ -3,7 +3,7 @@ module FSharpLint.Rules.Helper.SourceLength
 open System
 open FSharpLint.Framework
 open FSharpLint.Framework.Suggestion
-open FSharp.Compiler.Range
+open FSharp.Compiler.Text
 
 [<RequireQualifiedAccess>]
 type Config = { MaxLines:int }

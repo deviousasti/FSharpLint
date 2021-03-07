@@ -1,7 +1,7 @@
 ﻿module FSharpLint.Framework.Rules
 
 open FSharp.Compiler.SyntaxTree
-open FSharp.Compiler.Range
+open FSharp.Compiler.Text
 open FSharp.Compiler.SourceCodeServices
 open FSharpLint.Framework.AbstractSyntaxArray
 open FSharpLint.Framework.Ast

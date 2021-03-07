@@ -2,7 +2,7 @@ module FSharpLint.Rules.Helper.Naming
 
 open System
 open FSharp.Compiler.SyntaxTree
-open FSharp.Compiler.Range
+open FSharp.Compiler.Text
 open FSharpLint.Framework
 open FSharpLint.Framework.Ast
 open FSharpLint.Framework.AstInfo
@@ -170,7 +170,7 @@ let toAstNodeRule (namingRule:RuleMetadata<NamingRuleConfig>) =
     }
 
 let isActivePattern (identifier:Ident) =
-    FSharp.Compiler.PrettyNaming.IsActivePatternName identifier.idText
+    PrettyNaming.IsActivePatternName identifier.idText
 
 let activePatternIdentifiers (identifier:Ident) =
     identifier.idText.Split('|')
@@ -244,14 +244,14 @@ let isLiteral = isAttribute "Literal"
 
 let isMeasureType = isAttribute "Measure"
 
-let isNotUnionCase (checkFile:FSharpCheckFileResults) (ident:Ident) = async {
-    let! symbol = checkFile.GetSymbolUseAtLocation(
+let isNotUnionCase (checkFile:FSharpCheckFileResults) (ident:Ident) = 
+    let symbol = checkFile.GetSymbolUseAtLocation(
                     ident.idRange.StartLine, ident.idRange.EndColumn, "", [ident.idText])
 
     match symbol with
-    | Some(symbol) when (symbol.Symbol :? FSharpUnionCase) -> return false
-    | Some(_) | None -> return true
-}
+    | Some(symbol) when (symbol.Symbol :? FSharpUnionCase) -> false
+    | Some(_) | None -> true
+
 
 let isInterface typeDef =
     let hasConstructor = function

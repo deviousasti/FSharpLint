@@ -4,7 +4,8 @@ open System
 open FSharpLint.Framework
 open FSharpLint.Framework.Suggestion
 open FSharp.Compiler.SyntaxTree
-open FSharp.Compiler.Range
+open FSharp.Compiler.Text.Range
+open FSharp.Compiler.Text.Pos
 open FSharpLint.Framework.Ast
 open FSharpLint.Framework.Rules
 

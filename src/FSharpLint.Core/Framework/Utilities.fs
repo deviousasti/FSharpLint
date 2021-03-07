@@ -26,7 +26,7 @@ module ExpressionUtilities =
     open System
     open FSharp.Compiler
     open FSharp.Compiler.SyntaxTree
-    open FSharp.Compiler.Range
+    open FSharp.Compiler.Text
     open FSharp.Compiler.SourceCodeServices
 
     let (|Identifier|_|) = function
@@ -44,7 +44,7 @@ module ExpressionUtilities =
                 range.EndColumn,
                 "",
                 identNames)
-        | _ -> async.Return None
+        | _ -> None
 
     /// Converts an operator name e.g. op_Add to the operator symbol e.g. +
     let identAsDecompiledOpName (ident:Ident) =
@@ -90,7 +90,7 @@ module ExpressionUtilities =
         | _ -> None
 
     let getLeadingSpaces (range:range) (text:string) =
-        let range = mkRange "" (mkPos range.StartLine 0) range.End
+        let range = Range.mkRange "" (Pos.mkPos range.StartLine 0) range.End
         tryFindTextOfRange range text
         |> Option.map (fun text ->
             text.ToCharArray()
@@ -115,7 +115,7 @@ module ExpressionUtilities =
 
     /// Counts the number of comment lines preceding the given range of text.
     let countPrecedingCommentLines (text:string) (startPos:pos) (endPos:pos) =
-        let range = mkRange "" startPos endPos
+        let range = Range.mkRange "" startPos endPos
 
         tryFindTextOfRange range text
         |> Option.map (fun precedingText ->

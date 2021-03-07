@@ -2,7 +2,9 @@ module FSharpLint.Rules.ModuleDeclSpacing
 
 open System
 open FSharp.Compiler.SyntaxTree
-open FSharp.Compiler.Range
+open FSharp.Compiler.Text.Range
+open FSharp.Compiler.Text.Pos
+
 open FSharpLint.Framework
 open FSharpLint.Framework.Suggestion
 open FSharpLint.Framework.Ast

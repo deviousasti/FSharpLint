@@ -15,19 +15,18 @@ let private implementsIDisposable (fsharpType:FSharpType) =
     else
         false
 
-let private doesNotImplementIDisposable (checkFile:FSharpCheckFileResults) (ident:LongIdentWithDots) = async {
+let private doesNotImplementIDisposable (checkFile:FSharpCheckFileResults) (ident:LongIdentWithDots) = 
     let names = ident.Lid |> List.map (fun x -> x.idText)
-    let! symbol = checkFile.GetSymbolUseAtLocation(ident.Range.StartLine, ident.Range.EndColumn, "", names)
+    let symbol = checkFile.GetSymbolUseAtLocation(ident.Range.StartLine, ident.Range.EndColumn, "", names)
 
     match symbol with
     | Some(symbol) when (symbol.Symbol :? FSharpMemberOrFunctionOrValue) ->
-        let ctor = symbol.Symbol :?> FSharpMemberOrFunctionOrValue
-        return
-            ctor.DeclaringEntity
-            |> Option.exists (fun ctorForType ->
-                Seq.forall (implementsIDisposable >> not) ctorForType.AllInterfaces)
-    | Some(_) | None -> return false
-}
+        let ctor = symbol.Symbol :?> FSharpMemberOrFunctionOrValue        
+        ctor.DeclaringEntity
+        |> Option.exists (fun ctorForType ->
+            Seq.forall (implementsIDisposable >> not) ctorForType.AllInterfaces)
+    | Some(_) | None -> false
+
 
 let private generateFix (text:string) range = lazy(
     ExpressionUtilities.tryFindTextOfRange range text
@@ -40,10 +39,12 @@ let private generateFix (text:string) range = lazy(
 let runner args =
     match (args.AstNode, args.CheckInfo) with
     | (AstNode.Expression(SynExpr.New(_, SynType.LongIdent(identifier), _, range)), Some checkInfo) ->
+        [|
         { Range = range
           Message = Resources.GetString("RulesRedundantNewKeyword")
           SuggestedFix = Some (generateFix args.FileContent range)
-          TypeChecks = [ doesNotImplementIDisposable checkInfo identifier ] } |> Array.singleton
+          TypeChecks = [ lazy(doesNotImplementIDisposable checkInfo identifier) ] }
+        |]
     | _ -> Array.empty
 
 let rule =

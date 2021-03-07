@@ -3,9 +3,11 @@ module FSharpLint.Rules.RecursiveAsyncFunction
 open FSharpLint.Framework
 open FSharpLint.Framework.Suggestion
 open FSharp.Compiler.SyntaxTree
-open FSharp.Compiler.Range
+open FSharp.Compiler.Text
 open FSharpLint.Framework.Ast
 open FSharpLint.Framework.Rules
+open FSharp.Compiler.Text.Range
+open FSharp.Compiler.Text.Pos
 
 let private isAsyncCompExpr = function
     | SynExpr.App (_, _, (SynExpr.Ident compExprName), (SynExpr.CompExpr _), _)

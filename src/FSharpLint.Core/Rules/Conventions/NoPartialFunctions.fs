@@ -1,7 +1,7 @@
 module FSharpLint.Rules.NoPartialFunctions
 
 open System
-open FSharp.Compiler.Range
+open FSharp.Compiler.Text
 open FSharpLint.Framework
 open FSharpLint.Framework.Suggestion
 open FSharpLint.Framework.Ast

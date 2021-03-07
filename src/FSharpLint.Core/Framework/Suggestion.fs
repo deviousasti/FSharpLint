@@ -1,7 +1,7 @@
 ﻿module FSharpLint.Framework.Suggestion
 
 open System
-open FSharp.Compiler.Range
+open FSharp.Compiler.Text
 
 /// Information for consuming applications to provide an automated fix for a lint suggestion.
 [<NoEquality; NoComparison>]
@@ -29,7 +29,7 @@ type WarningDetails = {
 
     /// Async type checks to be performed to confirm this suggestion is valid.
     /// Suggestion is only considered valid when all type checks resolve to true.
-    TypeChecks:Async<bool> list
+    TypeChecks: Lazy<bool> list
 } with
     member internal this.WithTypeCheck typeCheck =
         match typeCheck with

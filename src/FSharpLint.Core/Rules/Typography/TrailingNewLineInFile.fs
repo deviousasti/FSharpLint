@@ -4,7 +4,8 @@ open System
 open FSharpLint.Framework
 open FSharpLint.Framework.Suggestion
 open FSharpLint.Framework.Rules
-open FSharp.Compiler.Range
+open FSharp.Compiler.Text.Range
+open FSharp.Compiler.Text.Pos
 
 let checkTrailingNewLineInFile (args:LineRuleParams) =
     if args.IsLastLine && args.FileContent.EndsWith("\n") then
